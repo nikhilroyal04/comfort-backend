@@ -32,7 +32,7 @@ router.post("/newProduct", upload.single('media'), async (req, res) => {
 });
 
 // Get all products
-router.get("/getProducts", async (req, res) => {
+router.get("/getallProducts", async (req, res) => {
   try {
     const products = await getProducts();
     successResponse(res, products, "Products fetched successfully");

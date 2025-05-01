@@ -32,7 +32,7 @@ router.post("/newCategory", upload.single('media'), async (req, res) => {
 });
 
 // Get all categories
-router.get("/getCategories", async (req, res) => {
+router.get("/getAllCategories", async (req, res) => {
   try {
     const categories = await getCategories();
     successResponse(res, categories, "Categories fetched successfully");

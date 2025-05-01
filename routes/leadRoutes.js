@@ -22,7 +22,7 @@ router.post("/newLead", async (req, res) => {
 });
 
 // Get all leads
-router.get("/getLeads", async (req, res) => {
+router.get("/getAllLeads", async (req, res) => {
   try {
     const leads = await getLeads();
     successResponse(res, leads, "Leads fetched successfully");
