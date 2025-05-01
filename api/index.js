@@ -12,15 +12,23 @@ const productRoutes = require("../routes/productRoutes");
 const app = express();
 const port = process.env.PORT || 3901;
 
-app.get("/", (req, res) => {
-  res.send("Welcome to the comfort way ");
-});
 
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:3000", "https://comfortway.vercel.app", "https://comfortway.in"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+  exposedHeaders: ["Content-Range", "X-Content-Range"],
+  maxAge: 600,
+}));
 
 // Middleware
 app.use(bodyParser.json()); // to parse JSON request bodies
 
+
+app.get("/", (req, res) => {
+  res.send("Welcome to the comfort way ");
+});
 
 // User routes
 app.use("/v1/leads", leadRoutes);
