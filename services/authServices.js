@@ -7,10 +7,19 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // Create a new maintenance in Firestore with createdOn timestamp
 const login = async (loginData) => {
     try {
-        const loginWithTimestamp = { ...loginData, createdOn: new Date().toISOString() };
-        const docRef = await addDoc(collection(db, "users"), loginWithTimestamp);
-        const token = jwt.sign({ userId: docRef.id }, JWT_SECRET, { expiresIn: '24h' });
-        return { id: docRef.id, ...loginWithTimestamp, token };
+        const userRef = doc(db, "users", loginData.email);
+
+        const userDoc = await getDoc(userRef);
+        if (!userDoc.exists()) {
+            throw new Error("User not found");
+        }
+        
+        const userData = userDoc.data();
+        if (userData.password !== loginData.password) {
+            throw new Error("Invalid password");
+        }
+        const token = jwt.sign({ userId: userDoc.id }, JWT_SECRET, { expiresIn: '24h' });
+        return { id: userDoc.id, ...userDoc.data(), token };
     } catch (error) {
         throw new Error("Error creating user: " + error.message);
     }
