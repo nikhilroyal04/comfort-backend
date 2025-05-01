@@ -17,6 +17,10 @@ app.use(cors());
 // Middleware
 app.use(bodyParser.json()); // to parse JSON request bodies
 
+app.get("/", (req, res) => {
+  res.send("Welcome to the comfort way ");
+});
+
 // User routes
 app.use("/v1/leads", leadRoutes);
 app.use("/v1/maintenances", maintenanceRoutes);
