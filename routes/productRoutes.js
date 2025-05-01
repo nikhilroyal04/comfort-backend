@@ -41,6 +41,17 @@ router.get("/getallProducts", async (req, res) => {
   }
 });
 
+// Get all products by category
+router.get("/getProductsByCategory/:category", async (req, res) => {
+  try {
+    const category = req.params.category;
+    const products = await getProductsByCategory(category);
+    successResponse(res, products, "Products fetched successfully");
+  } catch (error) {
+    errorResponse(res, error, "Error fetching products");
+  }
+});
+
 // Get a single product by ID
 router.get("/getProductById/:id", async (req, res) => {
   try {

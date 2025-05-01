@@ -1,5 +1,5 @@
 const { db } = require('../config/firebase');
-const { collection, addDoc, getDoc, doc, setDoc, deleteDoc, getDocs, query, orderBy, serverTimestamp } = require('firebase/firestore');
+const { collection, addDoc, getDoc, doc, setDoc, deleteDoc, getDocs, query, orderBy, serverTimestamp, where } = require('firebase/firestore');
 
 // Create a new product in Firestore
 const createProduct = async (productData) => {
@@ -18,6 +18,18 @@ const createProduct = async (productData) => {
 const getProducts = async () => {
     try {
         const productsQuery = query(collection(db, "products"), orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(productsQuery);
+        const products = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return products;
+    } catch (error) {
+        throw new Error("Error fetching products: " + error.message);
+    }
+};
+
+// Get all products by category from Firestore
+const getProductsByCategory = async (category) => {
+    try {
+        const productsQuery = query(collection(db, "products"), where("category", "==", category), orderBy("createdAt", "desc"));
         const querySnapshot = await getDocs(productsQuery);
         const products = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         return products;
@@ -64,4 +76,4 @@ const deleteProduct = async (productId) => {
     }
 };
 
-module.exports = { createProduct, getProducts, getProductById, updateProduct, deleteProduct };
+module.exports = { createProduct, getProducts, getProductById, updateProduct, deleteProduct, getProductsByCategory };
