@@ -14,7 +14,7 @@ const port = process.env.PORT || 3901;
 
 
 app.use(cors({
-  origin: ["http://localhost:3000", "https://comfortway.vercel.app", "https://comfortway.in"],
+  origin: ["http://localhost:5173", "https://comfortway.vercel.app", "https://comfortway.in"],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
