@@ -1,27 +1,43 @@
 const { db } = require('../config/firebase');
-const { collection, addDoc, getDoc, doc, setDoc, deleteDoc, getDocs, query, orderBy } = require('firebase/firestore');
+const { 
+    collection, 
+    addDoc, 
+    getDoc, 
+    doc, 
+    setDoc, 
+    deleteDoc, 
+    getDocs, 
+    query, 
+    orderBy, 
+    where 
+} = require('firebase/firestore');
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Create a new maintenance in Firestore with createdOn timestamp
-const login = async (loginData) => {
+// Login: Authenticate a user and return a JWT token
+const login = async (data) => {
     try {
-        const userRef = doc(db, "users", loginData.email);
+        const usersRef = collection(db, "users");
 
-        const userDoc = await getDoc(userRef);
-        if (!userDoc.exists()) {
+        const q = query(usersRef, where("email", "==", data.email));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
             throw new Error("User not found");
         }
-        
+
+        const userDoc = querySnapshot.docs[0];
         const userData = userDoc.data();
-        if (userData.password !== loginData.password) {
+
+        if (userData.password !== data.password) {
             throw new Error("Invalid password");
         }
+
         const token = jwt.sign({ userId: userDoc.id }, JWT_SECRET, { expiresIn: '24h' });
-        return { id: userDoc.id, ...userDoc.data(), token };
+        return { id: userDoc.id, ...userData, token };
     } catch (error) {
-        throw new Error("Error creating user: " + error.message);
+        throw new Error("Error logging in: " + error.message);
     }
 };
 
@@ -35,7 +51,7 @@ const getUsers = async () => {
     } catch (error) {
         throw new Error("Error fetching users: " + error.message);
     }
-};  
+};
 
 // Get a single user by ID from Firestore
 const getUserById = async (userId) => {
@@ -73,6 +89,7 @@ const deleteUser = async (userId) => {
     }
 };
 
+// Register a new user with a timestamp
 const register = async (registerData) => {
     try {
         const registerWithTimestamp = { ...registerData, createdOn: new Date().toISOString() };
@@ -83,14 +100,4 @@ const register = async (registerData) => {
     }
 };
 
-const logout = async (logoutData) => {  
-    try {
-        const logoutWithTimestamp = { ...logoutData, createdOn: new Date().toISOString() };
-        const docRef = await addDoc(collection(db, "users"), logoutWithTimestamp);
-        return { id: docRef.id, ...logoutWithTimestamp };
-    } catch (error) {
-        throw new Error("Error logging out: " + error.message);
-    }
-};
-
-module.exports = { login, getUsers, getUserById, updateUser, deleteUser, register, logout };
+module.exports = { login, getUsers, getUserById, updateUser, deleteUser, register };

@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { login, register, logout, getUsers, getUserById, updateUser, deleteUser } = require('../services/authServices');
+const { login, register, getUsers, getUserById, updateUser, deleteUser } = require('../services/authServices');
 const { successResponse, errorResponse } = require('../utils/responseManager');
 
 router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+    const data = req.body;
     try {
-        const user = await login(email, password);
+        const user = await login(data);
+        if (!user) {
+            return errorResponse(res, null, "Invalid credentials");
+        }
         successResponse(res, user, "Login successful");
     } catch (error) {
         errorResponse(res, error, "Login failed");
@@ -20,16 +23,6 @@ router.post('/register', async (req, res) => {
         successResponse(res, user, "Registration successful");
     } catch (error) {
         errorResponse(res, error, "Registration failed");
-    }
-}); 
-
-router.post('/logout', async (req, res) => {
-    const { email, password } = req.body;
-    try {
-        const user = await logout(email, password);
-        successResponse(res, user, "Logout successful");
-    } catch (error) {
-        errorResponse(res, error, "Logout failed");
     }
 }); 
 
