@@ -1,6 +1,7 @@
 const { initializeApp } = require('firebase/app');
 const { getFirestore } = require('firebase/firestore');
 const { getStorage } = require('firebase/storage');
+const { getAuth, GoogleAuthProvider } = require('firebase/auth');
 const admin = require('firebase-admin');
 const dotenv = require('dotenv');
 
@@ -23,6 +24,14 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firestore
 const db = getFirestore(app);
 
+// Initialize Firebase Auth
+const auth = getAuth(app);
+
+// Initialize Google Auth Provider
+const googleProvider = new GoogleAuthProvider();
+// Add scopes if needed
+googleProvider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+
 // Firebase Admin SDK - Parse service account from environment variable
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
@@ -32,7 +41,10 @@ admin.initializeApp({
   storageBucket: process.env.FIREBASE_STORAGE_BUCKET // Using the storage bucket from environment variables
 });
 
+// Initialize Admin Auth
+const adminAuth = admin.auth();
+
 // Initialize Admin Storage
 const adminStorage = admin.storage();
 
-module.exports = { app, db, adminStorage };
+module.exports = { app, db, auth, adminAuth, adminStorage, googleProvider };
