@@ -9,15 +9,15 @@ const {
 } = require('../services/authServices');
 const { verifyToken } = require('../middleware/authMiddleware');
 
-// Public routes
+// Public: Register with email/password
 router.post('/register', async (req, res) => {
   try {
     const { email, password, name } = req.body;
-    
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+
+    if (!email || !password || !name) {
+      return res.status(400).json({ error: 'Email, password, and name are required' });
     }
-    
+
     const result = await registerWithEmail(email, password, name);
     res.status(201).json(result);
   } catch (error) {
@@ -25,62 +25,65 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Public: Login with email/password
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
-    
+
     const result = await loginWithEmail(email, password);
     res.status(200).json(result);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(401).json({ error: error.message });
   }
 });
 
+// Public: Login with Google ID token
 router.post('/google', async (req, res) => {
   try {
     const { idToken } = req.body;
-    
+
     if (!idToken) {
       return res.status(400).json({ error: 'ID token is required' });
     }
-    
+
     const result = await googleSignIn(idToken);
     res.status(200).json(result);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(401).json({ error: error.message });
   }
 });
 
-// Protected routes
+// Protected: Get all users (admin only)
 router.get('/users', verifyToken, async (req, res) => {
   try {
-    // Only allow admin to get all users
     if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Unauthorized' });
     }
-    
+
     const users = await getAllUsers();
     res.status(200).json(users);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
+// Protected: Get specific user (self or admin)
 router.get('/users/:id', verifyToken, async (req, res) => {
   try {
-    // Allow user to get their own data or admin to get any user
-    if (req.user.userId !== req.params.id && req.user.role !== 'admin') {
+    const userId = req.params.id;
+
+    if (req.user.userId !== userId && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Unauthorized' });
     }
-    
-    const user = await getUserById(req.params.id);
+
+    const user = await getUserById(userId);
     res.status(200).json(user);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(404).json({ error: error.message });
   }
 });
 

@@ -1,26 +1,22 @@
 const { db, auth, googleProvider, adminAuth } = require('../config/firebase');
-const { 
-  doc, setDoc, getDoc, getDocs, 
-  collection, query, where, deleteDoc,
-  updateDoc
+const {
+  doc, setDoc, getDoc, getDocs,
+  collection, updateDoc, deleteDoc
 } = require('firebase/firestore');
 const {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
   signInWithCredential,
-  GoogleAuthProvider,
-  updateEmail,
-  updatePassword,
-  deleteUser: deleteAuthUser
+  GoogleAuthProvider
 } = require('firebase/auth');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // Common function to manage user data in Firestore
 const manageUserInFirestore = async (user, additionalData = {}) => {
   const userRef = doc(db, "users", user.uid);
-  
+
   const userData = {
     uid: user.uid,
     email: user.email,
@@ -29,7 +25,7 @@ const manageUserInFirestore = async (user, additionalData = {}) => {
     createdAt: additionalData.createdAt || new Date().toISOString(),
     lastLogin: new Date().toISOString(),
     role: additionalData.role || 'user',
-    provider: user.providerData?.[0]?.providerId || 'email',
+    provider: user.providerData?.[0]?.providerId || 'google',
     ...additionalData
   };
 
@@ -37,55 +33,78 @@ const manageUserInFirestore = async (user, additionalData = {}) => {
   return userData;
 };
 
-// Auth Functions
+// Register with manual email/password
 const registerWithEmail = async (email, password, name) => {
-  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-  const user = userCredential.user;
-  const userData = await manageUserInFirestore(user, { name });
-  
-  const token = jwt.sign({ 
-    userId: user.uid, 
-    email: user.email,
+  const existing = await getDoc(doc(db, "usersByEmail", email));
+  if (existing.exists()) throw new Error("Email already registered");
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const userId = crypto.randomUUID();
+
+  const userData = {
+    uid: userId,
+    email,
+    displayName: name,
+    role: 'user',
+    createdAt: new Date().toISOString(),
+    provider: 'manual',
+    passwordHash: hashedPassword,
+  };
+
+  await setDoc(doc(db, "users", userId), userData);
+  await setDoc(doc(db, "usersByEmail", email), { uid: userId });
+
+  const token = jwt.sign({
+    userId: userId,
+    email: email,
     role: 'user'
   }, JWT_SECRET, { expiresIn: '24h' });
-  
+
   return { token, user: userData };
 };
 
+// Login with manual email/password
 const loginWithEmail = async (email, password) => {
-  const userCredential = await signInWithEmailAndPassword(auth, email, password);
-  const user = userCredential.user;
-  const userData = await manageUserInFirestore(user);
-  
-  const token = jwt.sign({ 
-    userId: user.uid, 
+  const emailDoc = await getDoc(doc(db, "usersByEmail", email));
+  if (!emailDoc.exists()) throw new Error("Invalid credentials");
+
+  const userId = emailDoc.data().uid;
+  const userDoc = await getDoc(doc(db, "users", userId));
+  const user = userDoc.data();
+
+  const match = await bcrypt.compare(password, user.passwordHash);
+  if (!match) throw new Error("Invalid credentials");
+
+  const token = jwt.sign({
+    userId: user.uid,
     email: user.email,
-    role: userData.role || 'user'
+    role: user.role || 'user'
   }, JWT_SECRET, { expiresIn: '24h' });
-  
-  return { token, user: userData };
+
+  return { token, user };
 };
 
+// Google Sign-In using Firebase Auth
 const googleSignIn = async (idToken) => {
   const credential = GoogleAuthProvider.credential(idToken);
   const userCredential = await signInWithCredential(auth, credential);
   const user = userCredential.user;
-  
+
   const userDoc = await getDoc(doc(db, "users", user.uid));
   const isNewUser = !userDoc.exists();
-  
+
   const userData = await manageUserInFirestore(user);
-  
-  const token = jwt.sign({ 
-    userId: user.uid, 
+
+  const token = jwt.sign({
+    userId: user.uid,
     email: user.email,
     role: userData.role || 'user'
   }, JWT_SECRET, { expiresIn: '24h' });
-  
+
   return { token, user: userData, isNewUser };
 };
 
-// User CRUD Functions
+// User CRUD
 const getAllUsers = async () => {
   const querySnapshot = await getDocs(collection(db, "users"));
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -105,11 +124,9 @@ const updateUser = async (userId, updateData) => {
 };
 
 const deleteUser = async (userId) => {
-  // Get user data first
   const userDoc = await getDoc(doc(db, "users", userId));
   if (!userDoc.exists()) throw new Error('User not found');
-  
-  // Delete from Auth if UID exists
+
   if (userDoc.data().uid) {
     try {
       await adminAuth.deleteUser(userDoc.data().uid);
@@ -117,28 +134,27 @@ const deleteUser = async (userId) => {
       console.error("Error deleting auth user:", error);
     }
   }
-  
-  // Delete from Firestore
+
   await deleteDoc(doc(db, "users", userId));
+  await deleteDoc(doc(db, "usersByEmail", userDoc.data().email));
   return { message: 'User deleted successfully' };
 };
 
-// Profile Management
+// Profile update
 const updateUserProfile = async (userId, updates) => {
-  // Update Firestore
   const updatedUser = await updateUser(userId, updates);
-  
-  // Update Auth if email/password changed
+
   if (updates.email || updates.password) {
-    const authUser = await adminAuth.getUser(updatedUser.uid);
-    
     const updateAuth = {};
     if (updates.email) updateAuth.email = updates.email;
     if (updates.password) updateAuth.password = updates.password;
-    
-    await adminAuth.updateUser(updatedUser.uid, updateAuth);
+    try {
+      await adminAuth.updateUser(updatedUser.uid, updateAuth);
+    } catch (err) {
+      console.error("Error updating Firebase Auth user:", err);
+    }
   }
-  
+
   return updatedUser;
 };
 
