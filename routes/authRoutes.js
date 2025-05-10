@@ -5,7 +5,9 @@ const {
   loginWithEmail,
   googleSignIn,
   getAllUsers,
-  getUserById
+  getUserById,
+  getAllCustomers,
+  getAllMembers,
 } = require('../services/authServices');
 const { verifyToken } = require('../middleware/authMiddleware');
 
@@ -68,6 +70,39 @@ router.get('/users', verifyToken, async (req, res) => {
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/customers',  async (req, res) => {
+  try {
+    const users = await getAllCustomers();
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/members',  async (req, res) => {
+  try {
+    const users = await getAllMembers();
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/newUser', async (req, res) => {
+  try {
+    const { email, password, name, role } = req.body;
+
+    if (!email || !password || !name) {
+      return res.status(400).json({ error: 'Email, password, and name are required' });
+    }
+
+    const result = await registerWithEmail(email, password, name, role);
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 
