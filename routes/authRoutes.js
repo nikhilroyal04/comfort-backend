@@ -30,7 +30,6 @@ router.post('/register', async (req, res) => {
 // Public: Login with email/password
 router.post('/login', async (req, res) => {
   try {
-    console.log(req.body);
     const { email, password } = req.body;
 
     if (!email || !password) {
