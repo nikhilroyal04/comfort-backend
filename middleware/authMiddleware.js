@@ -9,7 +9,7 @@ const verifyToken = (req, res, next) => {
         // Get the token from the request headers
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return errorResponse(res, null, "No token provided", 401);
+            return errorResponse(res, "No token provided", 401);
         }
 
         const token = authHeader.split(' ')[1];
@@ -17,12 +17,12 @@ const verifyToken = (req, res, next) => {
         // Verify the token
         jwt.verify(token, JWT_SECRET, (err, decoded) => {
             if (err) {
-                return errorResponse(res, err, "Invalid token", 401);
+                return errorResponse(res, "Invalid token", 401);
             }
             
             // Check if two-factor authentication is verified
             if (!decoded.twoFactorVerified) {
-                return errorResponse(res, null, "Two-factor authentication required", 401);
+                return errorResponse(res, "Two-factor authentication required", 401);
             }
             
             // Add the decoded token to the request object
@@ -30,7 +30,7 @@ const verifyToken = (req, res, next) => {
             next();
         });
     } catch (error) {
-        return errorResponse(res, error, "Authentication failed", 401);
+        return errorResponse(res, "Authentication failed", 401);
     }
 };
 
