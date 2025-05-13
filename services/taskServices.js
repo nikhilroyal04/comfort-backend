@@ -1,5 +1,5 @@
 const { db } = require('../config/firebase');
-const { collection, addDoc, getDoc, doc, setDoc, deleteDoc, getDocs, query, orderBy } = require('firebase/firestore');
+const { collection, addDoc, getDoc, doc, setDoc, deleteDoc, getDocs, query, orderBy, where } = require('firebase/firestore');
 
 // Create a new task in Firestore with createdOn timestamp
 const createTask = async (taskData) => {
@@ -37,6 +37,17 @@ const getTaskById = async (taskId) => {
         return { id: taskDoc.id, ...taskDoc.data() };
     } catch (error) {
         throw new Error("Error fetching task: " + error.message);
+    }
+};
+
+const getTasksByUserId = async (userId) => {
+    try {
+        const tasksQuery = query(collection(db, "tasks"), where("assignee", "==", userId), orderBy("createdOn", "desc"));
+        const querySnapshot = await getDocs(tasksQuery);
+        const tasks = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return tasks;
+    } catch (error) {
+        throw new Error("Error fetching tasks: " + error.message);
     }
 };
 
@@ -90,4 +101,4 @@ const bulkAssignTasks = async (taskIds, userId) => {
 };
 
 
-module.exports = { createTask, getTasks, getTaskById, updateTask, deleteTask, assignTask, bulkAssignTasks };
+module.exports = { createTask, getTasks, getTaskById, updateTask, deleteTask, assignTask, bulkAssignTasks, getTasksByUserId };

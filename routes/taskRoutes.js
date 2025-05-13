@@ -6,7 +6,8 @@ const {
   updateTask,
   deleteTask,
   assignTask,
-  bulkAssignTasks
+  bulkAssignTasks,
+  getTasksByUserId
 } = require("../services/taskServices");
 const { successResponse, errorResponse } = require("../utils/responseManager");
 
@@ -43,6 +44,19 @@ router.get("/getTaskById/:id", async (req, res) => {
     errorResponse(res, error, "Task not found", 404);
   }
 });
+
+// Get tasks by user ID
+router.get("/getTasksByUserId/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const tasks = await getTasksByUserId(userId);
+    successResponse(res, tasks, "Tasks fetched successfully");
+  } catch (error) {
+    errorResponse(res, error, "Error fetching tasks");
+  }
+});
+
+
 
 // Update task data
 router.put("/updateTask/:id", async (req, res) => {

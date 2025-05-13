@@ -4,7 +4,8 @@ const {
   getLeads, 
   getLeadById, 
   updateLead, 
-  deleteLead 
+  deleteLead,
+  getLeadsByUserId
 } = require("../services/leadServices");
 const { successResponse, errorResponse } = require("../utils/responseManager");
 
@@ -39,6 +40,17 @@ router.get("/getLeadById/:id", async (req, res) => {
     successResponse(res, lead, "Lead fetched successfully");
   } catch (error) {
     errorResponse(res, error, "Lead not found", 404);
+  }
+});
+
+// Get leads by user ID
+router.get("/getLeadsByUserId/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const leads = await getLeadsByUserId(userId); 
+    successResponse(res, leads, "Leads fetched successfully");
+  } catch (error) {
+    errorResponse(res, error, "Error fetching leads");
   }
 });
 

@@ -1,5 +1,5 @@
 const { db } = require('../config/firebase');
-const { collection, addDoc, getDoc, doc, setDoc, deleteDoc, getDocs, query, orderBy } = require('firebase/firestore');
+const { collection, addDoc, getDoc, doc, setDoc, deleteDoc, getDocs, query, orderBy, where } = require('firebase/firestore');
 
 // Create a new lead in Firestore with createdOn timestamp
 const createLead = async (leadData) => {
@@ -40,6 +40,20 @@ const getLeadById = async (leadId) => {
     }
 };
 
+// Get leads by user ID
+const getLeadsByUserId = async (userId) => {
+    try {
+        const leadsQuery = query(collection(db, "leads"), where("assignee", "==", userId), orderBy("createdOn", "desc"));
+        const querySnapshot = await getDocs(leadsQuery);
+        const leads = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return leads;
+    } catch (error) {
+        throw new Error("Error fetching leads: " + error.message);
+    }
+};
+
+
+
 // Update lead data in Firestore
 const updateLead = async (leadId, leadData) => {
     try {
@@ -62,4 +76,4 @@ const deleteLead = async (leadId) => {
     }
 };
 
-module.exports = { createLead, getLeads, getLeadById, updateLead, deleteLead };
+module.exports = { createLead, getLeads, getLeadById, updateLead, deleteLead, getLeadsByUserId   };
