@@ -33,11 +33,16 @@ router.get("/getServiceHistoryById/:id", async (req, res) => {
     }
 });         
 
-router.get("/getServiceHistoriesByUserId/:userId", async (req, res) => {
+router.get("/getServiceHistoryByUserId/:userId", async (req, res) => {
     try {
         const userId = req.params.userId;
-        const serviceHistories = await getServiceHistoriesByUserId(userId);
-        successResponse(res, serviceHistories, "Service histories fetched successfully", 200);
+        const serviceHistory = await getServiceHistoriesByUserId(userId);
+
+        if (serviceHistory.length === 0) {
+            return errorResponse(res, "No service history found", "No service history found", 404);
+        }
+
+        successResponse(res, serviceHistory, "Service history fetched successfully", 200);
     } catch (error) {
         errorResponse(res, error, "Error fetching service histories", 500);
     }

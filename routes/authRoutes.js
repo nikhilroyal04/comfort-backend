@@ -104,13 +104,9 @@ router.post('/newUser', async (req, res) => {
 });
 
 // Protected: Get specific user (self or admin)
-router.get('/users/:id', verifyToken, async (req, res) => {
+router.get('/users/:id', async (req, res) => {
   try {
     const userId = req.params.id;
-
-    if (req.user.userId !== userId && req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Unauthorized' });
-    }
 
     const user = await getUserById(userId);
     res.status(200).json(user);
