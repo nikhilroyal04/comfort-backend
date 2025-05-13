@@ -42,6 +42,18 @@ const getPurchasedPlanById = async (purchasedPlanId) => {
     }
 };
 
+// Get all purchased plans by user ID from Firestore
+const getPurchasedPlansByUserId = async (userId) => {
+    try {
+        const purchasedPlansQuery = query(collection(db, "purchasedPlans"), where("userId", "==", userId), orderBy("createdOn", "desc"));
+        const querySnapshot = await getDocs(purchasedPlansQuery);   
+        const purchasedPlans = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return purchasedPlans;
+    } catch (error) {
+        throw new Error("Error fetching purchased plans: " + error.message);
+    }
+};
+
 // Update purchased plan data in Firestore
 const updatePurchasedPlan = async (purchasedPlanId, purchasedPlanData) => {
     try {
@@ -64,4 +76,4 @@ const deletePurchasedPlan = async (purchasedPlanId) => {
     }
 };
 
-module.exports = { createPurchasedPlan, getPurchasedPlans, getPurchasedPlanById, updatePurchasedPlan, deletePurchasedPlan };
+module.exports = { createPurchasedPlan, getPurchasedPlans, getPurchasedPlanById, getPurchasedPlansByUserId, updatePurchasedPlan, deletePurchasedPlan };

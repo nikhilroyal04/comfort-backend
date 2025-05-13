@@ -5,6 +5,7 @@ const {
   getPurchasedPlanById,
   updatePurchasedPlan,
   deletePurchasedPlan,
+  getPurchasedPlansByUserId,
 } = require("../services/purchasedPlanServices");
 const { successResponse, errorResponse } = require("../utils/responseManager");
 
@@ -39,6 +40,16 @@ router.get("/getPurchasedPlanById/:id", async (req, res) => {
     successResponse(res, purchasedPlan, "Purchased plan fetched successfully");
   } catch (error) {
     errorResponse(res, error, "Purchased plan not found", 404);
+  }
+});
+
+router.get("/getPurchasedPlansByUserId/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const purchasedPlans = await getPurchasedPlansByUserId(userId);
+    successResponse(res, purchasedPlans, "Purchased plans fetched successfully");
+  } catch (error) {
+    errorResponse(res, error, "Error fetching purchased plans");
   }
 });
 
