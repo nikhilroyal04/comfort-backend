@@ -6,7 +6,7 @@ const createCategory = async (categoryData) => {
     try {
         const docRef = await addDoc(collection(db, "categories"), {
             ...categoryData,
-            createdAt: serverTimestamp(), // Add createdAt field
+            createdOn: serverTimestamp(), // Add createdOn field
         });
         return { id: docRef.id, ...categoryData };
     } catch (error) {
@@ -17,7 +17,7 @@ const createCategory = async (categoryData) => {
 // Get all categories from Firestore
 const getCategories = async () => {
     try {
-        const categoriesQuery = query(collection(db, "categories"), orderBy("createdAt", "desc"));
+        const categoriesQuery = query(collection(db, "categories"), orderBy("createdOn", "desc"));
         const querySnapshot = await getDocs(categoriesQuery);
         const categories = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         return categories;

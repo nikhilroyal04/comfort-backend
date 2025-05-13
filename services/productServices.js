@@ -6,7 +6,7 @@ const createProduct = async (productData) => {
     try {
         const docRef = await addDoc(collection(db, "products"), {
             ...productData,
-            createdAt: serverTimestamp(), // Add createdAt field
+            createdOn: serverTimestamp(), // Add createdOn field
         });
         return { id: docRef.id, ...productData };
     } catch (error) {
@@ -17,7 +17,7 @@ const createProduct = async (productData) => {
 // Get all products from Firestore
 const getProducts = async () => {
     try {
-        const productsQuery = query(collection(db, "products"), orderBy("createdAt", "desc"));
+        const productsQuery = query(collection(db, "products"), orderBy("createdOn", "desc"));
         const querySnapshot = await getDocs(productsQuery);
         const products = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         return products;
@@ -29,7 +29,7 @@ const getProducts = async () => {
 // Get all products by category from Firestore
 const getProductsByCategory = async (category) => {
     try {
-        const productsQuery = query(collection(db, "products"), where("category", "==", category), orderBy("createdAt", "desc"));
+        const productsQuery = query(collection(db, "products"), where("category", "==", category), orderBy("createdOn", "desc"));
         const querySnapshot = await getDocs(productsQuery);
         const products = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         return products;
