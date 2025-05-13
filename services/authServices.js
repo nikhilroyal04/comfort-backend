@@ -1,7 +1,7 @@
 const { db, auth, adminAuth } = require('../config/firebase');
 const {
   doc, setDoc, getDoc, getDocs, where, 
-  collection, updateDoc, deleteDoc
+  collection, updateDoc, deleteDoc, query
 } = require('firebase/firestore');
 const {
   signInWithCredential,

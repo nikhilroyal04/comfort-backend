@@ -60,11 +60,8 @@ router.post('/google', async (req, res) => {
 });
 
 // Protected: Get all users (admin only)
-router.get('/users', verifyToken, async (req, res) => {
+router.get('/users', async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Unauthorized' });
-    }
 
     const users = await getAllUsers();
     res.status(200).json(users);
