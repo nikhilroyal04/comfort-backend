@@ -14,6 +14,7 @@ const roleRoutes = require("../routes/roleRoutes")
 const taskRoutes = require("../routes/taskRoutes")
 const serviceHistoryRoutes = require("../routes/serviceHistoryRoutes")
 const purchasedPlanRoutes = require("../routes/purchasedPlanRoutes")
+const statRoutes = require("../routes/statRoutes")
 
 const app = express();
 const port = process.env.PORT || 3901;
@@ -47,6 +48,7 @@ app.use("/v1/tasks", taskRoutes);
 app.use("/v1/roles", roleRoutes);
 app.use("/v1/serviceHistory", serviceHistoryRoutes);
 app.use("/v1/purchasedPlans", purchasedPlanRoutes);
+app.use("/v1/stats", statRoutes);
 
 // Catch all route for 404 (route not found)
 app.use((req, res) => {
