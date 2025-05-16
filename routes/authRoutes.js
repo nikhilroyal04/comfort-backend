@@ -8,6 +8,7 @@ const {
   getUserById,
   getAllCustomers,
   getAllMembers,
+  updateUser,
 } = require('../services/authServices');
 const { verifyToken } = require('../middleware/authMiddleware');
 
@@ -112,6 +113,18 @@ router.get('/users/:id', async (req, res) => {
     res.status(200).json(user);
   } catch (error) {
     res.status(404).json({ error: error.message });
+  }
+  });
+
+router.put('/updateUser/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const updatedUser = req.body;
+
+    const result = await updateUser(userId, updatedUser);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 
