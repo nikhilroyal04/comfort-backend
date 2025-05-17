@@ -4,7 +4,8 @@ const {
   getCategories, 
   getCategoryById, 
   updateCategory, 
-  deleteCategory 
+  deleteCategory,
+  getCategoryByName
 } = require("../services/categoryServices");
 const { successResponse, errorResponse } = require("../utils/responseManager");
 const { uploadFile, upload } = require("../controllers/imageController");
@@ -51,6 +52,19 @@ router.get("/getCategoryById/:id", async (req, res) => {
     errorResponse(res, error, "Category not found", 404);
   }
 });
+
+// Get a single category by name
+router.get("/getCategoryByName/:name", async (req, res) => {
+  try {
+    const categoryName = req.params.name;
+    const category = await getCategoryByName(categoryName); 
+    successResponse(res, category, "Category fetched successfully");
+  } catch (error) {
+    errorResponse(res, error, "Category not found", 404);
+  }
+});
+
+
 
 // Update category data
 router.put("/updateCategory/:id", upload.single('media'), async (req, res) => {

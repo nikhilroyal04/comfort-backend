@@ -42,6 +42,23 @@ const getCategoryById = async (categoryId) => {
     }
 };
 
+// Get a single category by name from Firestore
+const getCategoryByName = async (categoryName) => {
+    try {
+        const categoryRef = doc(db, "categories", categoryName);
+        const categoryDoc = await getDoc(categoryRef);  
+
+        if (!categoryDoc.exists()) {
+            throw new Error("Category not found");
+        }
+
+        return { id: categoryDoc.id, ...categoryDoc.data() };
+    } catch (error) {
+        throw new Error("Error fetching category: " + error.message);
+    }
+};
+
+
 // Update category data in Firestore
 const updateCategory = async (categoryId, categoryData) => {
     try {
@@ -64,4 +81,4 @@ const deleteCategory = async (categoryId) => {
     }
 };
 
-module.exports = { createCategory, getCategories, getCategoryById, updateCategory, deleteCategory };
+module.exports = { createCategory, getCategories, getCategoryById, getCategoryByName, updateCategory, deleteCategory };
