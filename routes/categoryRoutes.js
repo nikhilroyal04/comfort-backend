@@ -19,8 +19,8 @@ router.post("/newCategory", upload.single('media'), async (req, res) => {
     // If a media file is uploaded, handle the file upload via uploadFile
     if (req.file) {
       const uploadedMedia = await uploadFile(req.file);
-      if (uploadedMedia.categoryImage) {
-        categoryData.categoryImage = uploadedMedia.categoryImage; // Image URL
+      if (uploadedMedia.img) {
+        categoryData.img = uploadedMedia.img; // Image URL
       }
     }
 
@@ -61,8 +61,8 @@ router.put("/updateCategory/:id", upload.single('media'), async (req, res) => {
     // If a new media file is uploaded, handle the file upload via uploadFile
     if (req.file) {
       const uploadedMedia = await uploadFile(req.file);
-      if (uploadedMedia.categoryImage) {
-        categoryData.categoryImage = uploadedMedia.categoryImage; // Image URL
+      if (uploadedMedia.img) {
+        categoryData.img = uploadedMedia.img; // Image URL
       }
     }
 

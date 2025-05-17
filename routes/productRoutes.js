@@ -19,8 +19,8 @@ router.post("/newProduct", upload.single('media'), async (req, res) => {
     // If a media file is uploaded, handle the file upload via uploadFile
     if (req.file) {
       const uploadedMedia = await uploadFile(req.file);
-      if (uploadedMedia.productImage) {
-        productData.productImage = uploadedMedia.productImage; // Image URL
+      if (uploadedMedia.img) {
+        productData.img = uploadedMedia.img; // Image URL
       }
     }
 
@@ -72,8 +72,8 @@ router.put("/updateProduct/:id", upload.single('media'), async (req, res) => {
     // If a new media file is uploaded, handle the file upload via uploadFile
     if (req.file) {
       const uploadedMedia = await uploadFile(req.file);
-      if (uploadedMedia.productImage) {
-        productData.productImage = uploadedMedia.productImage; // Image URL
+      if (uploadedMedia.img) {
+        productData.img = uploadedMedia.img; // Image URL
       }
     }
 
