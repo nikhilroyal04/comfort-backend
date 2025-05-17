@@ -29,7 +29,10 @@ const getProducts = async () => {
 // Get all products by category from Firestore
 const getProductsByCategory = async (category) => {
     try {
-        const productsQuery = query(collection(db, "products"), where("category", "==", category), orderBy("createdOn", "desc"));
+        const productsQuery = query(
+            collection(db, "products"),
+            where("categoryId", "==", category)
+        );
         const querySnapshot = await getDocs(productsQuery);
         const products = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         return products;

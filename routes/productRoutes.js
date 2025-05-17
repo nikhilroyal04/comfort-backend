@@ -4,7 +4,8 @@ const {
   getProducts, 
   getProductById, 
   updateProduct, 
-  deleteProduct 
+  deleteProduct,
+  getProductsByCategory
 } = require("../services/productServices");
 const { successResponse, errorResponse } = require("../utils/responseManager");
 const { uploadFile, upload } = require("../controllers/imageController");
