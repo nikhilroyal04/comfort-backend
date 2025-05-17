@@ -1,5 +1,5 @@
 const { db } = require('../config/firebase');
-const { collection, addDoc, getDoc, doc, setDoc, deleteDoc, getDocs, query, orderBy, serverTimestamp } = require('firebase/firestore');
+const { collection, addDoc, getDoc, doc, setDoc, deleteDoc, getDocs, query, orderBy, where, serverTimestamp } = require('firebase/firestore');
 
 // Create a new category in Firestore
 const createCategory = async (categoryData) => {
@@ -43,16 +43,17 @@ const getCategoryById = async (categoryId) => {
 };
 
 // Get a single category by name from Firestore
-const getCategoryByName = async (categoryName) => {
+const getCategoryByName = async (decodedName) => {
     try {
-        const categoryRef = doc(db, "categories", categoryName);
-        const categoryDoc = await getDoc(categoryRef);  
+        const categoryRef = query(collection(db, "categories"), where("name", "==", decodedName));
+        const querySnapshot = await getDocs(categoryRef);
+        const categoryDoc = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        if (!categoryDoc.exists()) {
+        if (categoryDoc.length === 0) {
             throw new Error("Category not found");
         }
 
-        return { id: categoryDoc.id, ...categoryDoc.data() };
+        return categoryDoc[0]; // Return the first matching category object
     } catch (error) {
         throw new Error("Error fetching category: " + error.message);
     }

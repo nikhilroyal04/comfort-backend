@@ -57,14 +57,15 @@ router.get("/getCategoryById/:id", async (req, res) => {
 router.get("/getCategoryByName/:name", async (req, res) => {
   try {
     const categoryName = req.params.name;
-    const category = await getCategoryByName(categoryName); 
+    // Convert URL-encoded name to proper format and handle spaces
+    const decodedName = decodeURIComponent(categoryName).replace(/%20/g, ' ');
+    
+    const category = await getCategoryByName(decodedName); 
     successResponse(res, category, "Category fetched successfully");
   } catch (error) {
     errorResponse(res, error, "Category not found", 404);
   }
 });
-
-
 
 // Update category data
 router.put("/updateCategory/:id", upload.single('media'), async (req, res) => {
