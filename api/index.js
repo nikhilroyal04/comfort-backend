@@ -13,6 +13,7 @@ const protectionRoutes = require("../routes/protectionRoutes");
 const roleRoutes = require("../routes/roleRoutes")
 const taskRoutes = require("../routes/taskRoutes")
 const serviceHistoryRoutes = require("../routes/serviceHistoryRoutes")
+const serviceRoutes = require("../routes/servicesRoutes")
 const purchasedPlanRoutes = require("../routes/purchasedPlanRoutes")
 const statRoutes = require("../routes/statRoutes")
 
@@ -49,6 +50,7 @@ app.use("/v1/roles", roleRoutes);
 app.use("/v1/serviceHistory", serviceHistoryRoutes);
 app.use("/v1/purchasedPlans", purchasedPlanRoutes);
 app.use("/v1/stats", statRoutes);
+app.use("/v1/services", serviceRoutes);
 
 // Catch all route for 404 (route not found)
 app.use((req, res) => {
