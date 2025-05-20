@@ -10,7 +10,6 @@ const {
   getAllMembers,
   updateUser,
 } = require('../services/authServices');
-const { verifyToken } = require('../middleware/authMiddleware');
 
 // Public: Register with email/password
 router.post('/register', async (req, res) => {
@@ -44,19 +43,25 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Public: Login with Google ID token
+// Public: Login or Signup with Google ID token
 router.post('/google', async (req, res) => {
   try {
     const { idToken } = req.body;
 
-    if (!idToken) {
-      return res.status(400).json({ error: 'ID token is required' });
+    if (!idToken || typeof idToken !== 'string') {
+      return res.status(400).json({ error: 'Valid Google ID token is required' });
     }
 
-    const result = await googleSignIn(idToken);
-    res.status(200).json(result);
+    const { token, user, isNewUser } = await googleSignIn(idToken);
+
+    res.status(200).json({
+      message: isNewUser ? 'New user registered with Google' : 'User signed in with Google',
+      token,
+      user,
+    });
   } catch (error) {
-    res.status(401).json({ error: error.message });
+    console.error('Google sign-in error:', error.message);
+    res.status(401).json({ error: 'Google authentication failed', details: error.message });
   }
 });
 

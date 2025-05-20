@@ -23,8 +23,8 @@ const manageUserInFirestore = async (user, additionalData = {}) => {
   const userData = {
     uid: user.uid,
     email: user.email,
-    name: user.displayName || additionalData.name || '',
-    photoURL: user.photoURL || additionalData.photoURL || '',
+    name: user.name || additionalData.name || '',
+    profileImage: user.profileImage || additionalData.profileImage || '',
     createdOn: additionalData.createdOn || new Date().toISOString(),
     lastLogin: new Date().toISOString(),
     role: additionalData.role || 'NpkR5K3M242WKHPdVTTw',
@@ -124,23 +124,39 @@ const loginWithEmail = async (email, password) => {
 
 // Google Sign-In
 const googleSignIn = async (idToken) => {
-  const credential = GoogleAuthProvider.credential(idToken);
-  const userCredential = await signInWithCredential(auth, credential);
-  const user = userCredential.user;
+  try {
+    const decodedToken = await adminAuth.verifyIdToken(idToken);
+    const uid = decodedToken.uid;
+    const email = decodedToken.email;
+    const name = decodedToken.name || "";
+    const photoURL = decodedToken.picture || "";
 
-  const userDoc = await getDoc(doc(db, "users", user.uid));
-  const isNewUser = !userDoc.exists();
+    const userDoc = await getDoc(doc(db, "users", uid));
+    const isNewUser = !userDoc.exists();
 
-  const userData = await manageUserInFirestore(user);
+    const userData = await manageUserInFirestore({
+      uid,
+      email,
+      name,
+      profileImage: photoURL,
+      role: 'NpkR5K3M242WKHPdVTTw',
+      providerData: [{ providerId: "google" }]
+    });
 
-  const token = jwt.sign({
-    userId: user.uid,
-    email: user.email,
-    role: userData.role
-  }, JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({
+      userId: uid,
+      email,
+      role: userData.role
+    }, JWT_SECRET, { expiresIn: '24h' });
 
-  return { token, user: userData, isNewUser };
+    return { token, user: userData, isNewUser };
+
+  } catch (error) {
+    console.error("Google Sign-In error:", error);
+    throw new Error("Invalid ID token");
+  }
 };
+
 
 // Get all users
 const getAllUsers = async () => {
