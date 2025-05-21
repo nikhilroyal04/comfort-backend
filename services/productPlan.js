@@ -1,5 +1,5 @@
 const { db } = require('../config/firebase');
-const { collection, addDoc, getDoc, doc, setDoc, deleteDoc, getDocs, query, orderBy } = require('firebase/firestore');
+const { collection, addDoc, getDoc, doc, setDoc, deleteDoc, getDocs, query, where, orderBy } = require('firebase/firestore');
 
 // Create a new protection plan in Firestore with createdOn timestamp
 const createProductPlan = async (productPlanData) => {
