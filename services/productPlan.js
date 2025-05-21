@@ -40,6 +40,18 @@ const getProductPlanById = async (productPlanId) => {
     }
 };
 
+// Get all protection plans by category from Firestore
+const getProductPlansByCategory = async (category) => {
+    try {
+        const productPlansQuery = query(collection(db, "productPlans"), where("category", "==", category));
+        const querySnapshot = await getDocs(productPlansQuery); 
+        const productPlans = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return productPlans;
+    } catch (error) {
+        throw new Error("Error fetching product plans by category: " + error.message);
+    }
+};  
+
 // Update protection plan data in Firestore
 const updateProductPlan = async (productPlanId, productPlanData) => {
     try {
@@ -62,4 +74,4 @@ const deleteProductPlan = async (productPlanId) => {
     }
 };
 
-module.exports = { createProductPlan, getProductPlans, getProductPlanById, updateProductPlan, deleteProductPlan };
+module.exports = { createProductPlan, getProductPlans, getProductPlanById, getProductPlansByCategory, updateProductPlan, deleteProductPlan };

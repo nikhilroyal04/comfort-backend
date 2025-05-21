@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createProductPlan, getProductPlans, getProductPlanById, updateProductPlan, deleteProductPlan } = require('../services/productPlan');
+const { createProductPlan, getProductPlans, getProductPlanById, getProductPlansByCategory, updateProductPlan, deleteProductPlan } = require('../services/productPlan');
 const { successResponse, errorResponse } = require('../utils/responseManager');
 
 
@@ -28,6 +28,15 @@ router.get('/getProductPlanById/:id', async (req, res) => {
         successResponse(res, productPlan, "Product plan fetched successfully");
     } catch (error) {
         errorResponse(res, error, "Error fetching product plan");
+    }
+});
+
+router.get('/getProductPlansByCategory/:category', async (req, res) => {
+    try {
+        const productPlans = await getProductPlansByCategory(req.params.category);
+        successResponse(res, productPlans, "Product plans fetched successfully");
+    } catch (error) {
+        errorResponse(res, error, "Error fetching product plans by category");
     }
 });
 
