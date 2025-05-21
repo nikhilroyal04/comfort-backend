@@ -43,7 +43,7 @@ const getProductPlanById = async (productPlanId) => {
 // Get all protection plans by category from Firestore
 const getProductPlansByCategory = async (category) => {
     try {
-        const productPlansQuery = query(collection(db, "productPlans"), where("category", "==", category));
+        const productPlansQuery = query(collection(db, "productPlans"), where("productId", "==", category));
         const querySnapshot = await getDocs(productPlansQuery); 
         const productPlans = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         return productPlans;
