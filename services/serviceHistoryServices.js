@@ -45,7 +45,7 @@ const getServiceHistoryById = async (serviceHistoryId) => {
 // Get service histories by user ID
 const getServiceHistoriesByUserId = async (userId) => {
     try {
-        const serviceHistoriesQuery = query(collection(db, "serviceHistory"), where("userId", "==", userId), orderBy("createdOn", "desc"));
+        const serviceHistoriesQuery = query(collection(db, "serviceHistory"), where("userId", "==", userId));
         const querySnapshot = await getDocs(serviceHistoriesQuery);
         const serviceHistories = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         return serviceHistories;

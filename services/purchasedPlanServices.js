@@ -45,7 +45,7 @@ const getPurchasedPlanById = async (purchasedPlanId) => {
 // Get all purchased plans by user ID from Firestore
 const getPurchasedPlansByUserId = async (userId) => {
     try {
-        const purchasedPlansQuery = query(collection(db, "purchasedPlans"), where("userId", "==", userId), orderBy("createdOn", "desc"));
+        const purchasedPlansQuery = query(collection(db, "purchasedPlans"), where("userId", "==", userId));
         const querySnapshot = await getDocs(purchasedPlansQuery);   
         const purchasedPlans = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         return purchasedPlans;
