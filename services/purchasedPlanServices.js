@@ -1,5 +1,5 @@
 const { db } = require('../config/firebase');
-const { collection, addDoc, getDoc, doc, setDoc, deleteDoc, getDocs, query, orderBy, serverTimestamp } = require('firebase/firestore');
+const { collection, addDoc, getDoc, doc, setDoc, deleteDoc, getDocs, query, orderBy, where, serverTimestamp } = require('firebase/firestore');
 
 // Create a new purchased plan in Firestore
 const createPurchasedPlan = async (purchasedPlanData) => {
